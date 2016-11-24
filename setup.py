@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))  # noqa
 import gh3
 
 requirements = [
-    'attrs',
+    'attrs >= 16.3',
     'requests[security] >= 2.12.1',
     'uritemplate >= 3.0',
 ]

@@ -40,7 +40,10 @@ class User(object):
 
     bio = attr.ib(default=_attrs.NOT_PROVIDED)
     blog = attr.ib(default=_attrs.NOT_PROVIDED)
-    collaborators_count = attr.ib(default=_attrs.NOT_PROVIDED)
+    collaborators_count = _attrs.aliased(
+        json_key='collaborators',
+        default=_attrs.NOT_PROVIDED,
+    )
     company = attr.ib(default=_attrs.NOT_PROVIDED)
     created_at = attr.ib(
         convert=_attrs.isodatetime,
@@ -48,36 +51,50 @@ class User(object):
     )
     disk_usage = attr.ib(default=_attrs.NOT_PROVIDED)
     email = attr.ib(default=_attrs.NOT_PROVIDED)
-    followers_count = attr.ib(default=_attrs.NOT_PROVIDED)
-    following_count = attr.ib(default=_attrs.NOT_PROVIDED)
+    followers_count = _attrs.aliased(
+        json_key='followers',
+        default=_attrs.NOT_PROVIDED,
+    )
+    following_count = _attrs.aliased(
+        json_key='following',
+        default=_attrs.NOT_PROVIDED,
+    )
     hireable = attr.ib(default=_attrs.NOT_PROVIDED)
     location = attr.ib(default=_attrs.NOT_PROVIDED)
     name = attr.ib(default=_attrs.NOT_PROVIDED)
-    owned_private_repos_count = attr.ib(default=_attrs.NOT_PROVIDED)
+    owned_private_repos_count = _attrs.aliased(
+        json_key='owned_private_repos',
+        default=_attrs.NOT_PROVIDED,
+    )
     plan = attr.ib(convert=Plan.from_dictionary, default=_attrs.NOT_PROVIDED)
-    private_gists_count = attr.ib(default=_attrs.NOT_PROVIDED)
-    public_gists_count = attr.ib(default=_attrs.NOT_PROVIDED)
-    public_repos_count = attr.ib(default=_attrs.NOT_PROVIDED)
-    total_private_repos_count = attr.ib(default=_attrs.NOT_PROVIDED)
+    private_gists_count = _attrs.aliased(
+        json_key='private_gists',
+        default=_attrs.NOT_PROVIDED,
+    )
+    public_gists_count = _attrs.aliased(
+        json_key='public_gists',
+        default=_attrs.NOT_PROVIDED,
+    )
+    public_repos_count = _attrs.aliased(
+        json_key='public_repos',
+        default=_attrs.NOT_PROVIDED,
+    )
+    total_private_repos_count = _attrs.aliased(
+        json_key='total_private_repos',
+        default=_attrs.NOT_PROVIDED,
+    )
     updated_at = attr.ib(
         convert=_attrs.isodatetime,
         default=_attrs.NOT_PROVIDED
     )
 
-    _aliases = {
-        'collaborators': 'collaborators_count',
-        'followers': 'followers_count',
-        'following': 'following_count',
-        'owned_private_repos': 'owned_private_repos_count',
-        'private_gists': 'private_gists_count',
-        'public_gists': 'public_gists_count',
-        'public_repos': 'public_repos_count',
-        'total_private_repos': 'total_private_repos_count',
-    }
-
     @classmethod
     def from_dictionary(cls, dictionary):
-        for original_name, new_name in cls._aliases.items():
-            if original_name in dictionary:
-                dictionary[new_name] = dictionary.pop(original_name)
+        if dictionary is _attrs.NOT_PROVIDED:
+            return _attrs.NOT_PROVIDED
+
+        for attribute in attr.fields(cls):
+            original_name = attribute.metadata.get('json_key')
+            if original_name is not None and original_name in dictionary:
+                dictionary[attribute.name] = dictionary.pop(original_name)
         return cls(**dictionary)

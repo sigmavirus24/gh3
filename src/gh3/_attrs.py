@@ -1,6 +1,8 @@
 """Collection of attrs conversion functions and validators."""
 import datetime
 
+import attr
+
 NOT_PROVIDED = object()
 
 
@@ -10,6 +12,12 @@ def isodatetime(value):
 
     date = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
     return date.replace(tzinfo=UTC())
+
+
+def aliased(json_key, **kwargs):
+    kwargs.setdefault('metadata', {})
+    kwargs['metadata']['json_key'] = json_key
+    return attr.ib(**kwargs)
 
 
 class UTC(datetime.tzinfo):
